@@ -18,7 +18,7 @@ export default function NewsPage() {
   const list = news.filter((n) => n.tab === tab);
 
   return (
-    <PhoneFrame bottomBar={<BottomNav activeIndex={2} />}>
+    <PhoneFrame bottomBar={<BottomNav activeIndex={-1} />}>
       <div className="min-h-full bg-[#f4f7fb] dark:bg-neutral-950">
         <PageHeader
           title="Berita"

@@ -22,13 +22,13 @@ export const member: Member = {
 /** Pintasan menu (placeholder — silakan sesuaikan). */
 export type Shortcut = {
   label: string;
-  icon: "profile" | "topup" | "doc" | "calendar";
+  icon: "news" | "topup" | "doc" | "calendar";
   /** Tujuan navigasi; null = belum ada halaman. */
   href: string | null;
 };
 
 export const shortcuts: Shortcut[] = [
-  { label: "Profil", icon: "profile", href: "/account" },
+  { label: "Berita", icon: "news", href: "/news" },
   { label: "Sertifikat", icon: "doc", href: "/sertifikasi" },
   { label: "Event", icon: "calendar", href: "/event" },
   { label: "Top Up", icon: "topup", href: "/ppob" },
@@ -60,21 +60,53 @@ export type PpobIcon =
   | "game";
 
 export type PpobItem = {
+  /** Slug untuk rute /ppob/[id]. */
+  id: string;
   label: string;
   icon: PpobIcon;
   color: string;
   bg: string;
+  /** Label & placeholder field "nomor tujuan" sesuai jenis layanan. */
+  targetLabel: string;
+  targetPlaceholder: string;
 };
 
 export const ppobItems: PpobItem[] = [
-  { label: "Pulsa & Data", icon: "pulsa", color: "text-sky-600", bg: "bg-sky-100" },
-  { label: "Token Listrik", icon: "pln", color: "text-amber-500", bg: "bg-amber-100" },
-  { label: "Top Up e-Wallet", icon: "wallet", color: "text-emerald-500", bg: "bg-emerald-100" },
-  { label: "PDAM", icon: "pdam", color: "text-blue-500", bg: "bg-blue-100" },
-  { label: "BPJS", icon: "bpjs", color: "text-teal-600", bg: "bg-teal-100" },
-  { label: "Internet & TV", icon: "internet", color: "text-violet-500", bg: "bg-violet-100" },
-  { label: "Voucher Game", icon: "game", color: "text-rose-500", bg: "bg-rose-100" },
+  { id: "pulsa", label: "Pulsa & Data", icon: "pulsa", color: "text-sky-600", bg: "bg-sky-100", targetLabel: "Nomor HP", targetPlaceholder: "08xxxxxxxxxx" },
+  { id: "token-listrik", label: "Token Listrik", icon: "pln", color: "text-amber-500", bg: "bg-amber-100", targetLabel: "Nomor Meter / ID Pelanggan", targetPlaceholder: "1234 5678 9012" },
+  { id: "e-wallet", label: "Top Up e-Wallet", icon: "wallet", color: "text-emerald-500", bg: "bg-emerald-100", targetLabel: "Nomor HP", targetPlaceholder: "08xxxxxxxxxx" },
+  { id: "pdam", label: "PDAM", icon: "pdam", color: "text-blue-500", bg: "bg-blue-100", targetLabel: "Nomor Pelanggan", targetPlaceholder: "Nomor pelanggan PDAM" },
+  { id: "bpjs", label: "BPJS", icon: "bpjs", color: "text-teal-600", bg: "bg-teal-100", targetLabel: "Nomor VA BPJS", targetPlaceholder: "Nomor virtual account" },
+  { id: "internet-tv", label: "Internet & TV", icon: "internet", color: "text-violet-500", bg: "bg-violet-100", targetLabel: "Nomor Pelanggan", targetPlaceholder: "ID pelanggan" },
+  { id: "voucher-game", label: "Voucher Game", icon: "game", color: "text-rose-500", bg: "bg-rose-100", targetLabel: "User ID", targetPlaceholder: "User ID / Zone ID" },
 ];
+
+/** Pilihan nominal top up / pembelian (Rupiah). */
+export const ppobNominals: number[] = [
+  10000, 25000, 50000, 100000, 150000, 200000,
+];
+
+/** Cari layanan PPOB berdasarkan id. */
+export function findPpob(id: string): PpobItem | undefined {
+  return ppobItems.find((p) => p.id === id);
+}
+
+/** Merchant dummy untuk simulasi Scan QR. */
+export const scanMerchant = {
+  name: "Katering Berkah Rasa",
+  location: "Jakarta Selatan",
+  id: "MID-0089231",
+};
+
+/** Metadata struk (ID transaksi + waktu). Panggil di handler, bukan saat render. */
+export function makeReceiptMeta(): { txnId: string; time: string } {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return {
+    txnId: "INV" + String(d.getTime()).slice(-10),
+    time: `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}.${pad(d.getMinutes())}`,
+  };
+}
 
 /* ------------------------------------------------------------------ */
 /* Direktori anggota (placeholder)                                     */
@@ -350,6 +382,82 @@ export const trainingTabs: { key: "all" | TrainingStatus; label: string }[] = [
 /** Format angka Rupiah, mis. 150000 -> "Rp150.000". */
 export function formatRupiah(n: number): string {
   return "Rp" + n.toLocaleString("id-ID");
+}
+
+/* ------------------------------------------------------------------ */
+/* E-Wallet (PPJI Pay) — gaya OVO                                      */
+/* ------------------------------------------------------------------ */
+export const wallet = {
+  /** Saldo dompet (Rupiah). */
+  balance: 250000,
+  /** Poin loyalitas. */
+  points: 1250,
+};
+
+/** Aksi cepat di kartu wallet. */
+export type WalletAction = {
+  label: string;
+  icon: "topup" | "transfer" | "scan" | "history";
+};
+
+export const walletActions: WalletAction[] = [
+  { label: "Top Up", icon: "topup" },
+  { label: "Transfer", icon: "transfer" },
+  { label: "Scan", icon: "scan" },
+  { label: "Riwayat", icon: "history" },
+];
+
+/** Transaksi dompet. amount > 0 = masuk, < 0 = keluar. */
+export type WalletTxn = {
+  id: string;
+  title: string;
+  category: "topup" | "transfer" | "pay" | "reward";
+  time: string;
+  amount: number;
+};
+
+export const walletTxns: WalletTxn[] = [
+  {
+    id: "w1",
+    title: "Top Up Saldo",
+    category: "topup",
+    time: "Hari ini, 09.12",
+    amount: 200000,
+  },
+  {
+    id: "w2",
+    title: "Bayar Iuran Anggota",
+    category: "pay",
+    time: "Kemarin, 14.30",
+    amount: -150000,
+  },
+  {
+    id: "w3",
+    title: "Transfer ke Budi S.",
+    category: "transfer",
+    time: "2 Jun, 10.05",
+    amount: -50000,
+  },
+  {
+    id: "w4",
+    title: "Cashback Pelatihan",
+    category: "reward",
+    time: "1 Jun, 16.40",
+    amount: 15000,
+  },
+  {
+    id: "w5",
+    title: "Token Listrik PLN",
+    category: "pay",
+    time: "30 Mei, 08.20",
+    amount: -100000,
+  },
+];
+
+/** Format Rupiah bertanda, mis. -150000 -> "- Rp150.000". */
+export function formatSignedRupiah(n: number): string {
+  const sign = n < 0 ? "- " : "+ ";
+  return sign + "Rp" + Math.abs(n).toLocaleString("id-ID");
 }
 
 /* ------------------------------------------------------------------ */

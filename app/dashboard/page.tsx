@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import PhoneFrame from "../components/PhoneFrame";
 import BottomNav from "../components/BottomNav";
-import MemberCard from "../components/MemberCard";
+import MemberWalletCard from "../components/MemberWalletCard";
 import PromoBanner from "../components/PromoBanner";
 import OrgFeatures from "../components/OrgFeatures";
 import { member, shortcuts, type Shortcut } from "../lib/dummy";
@@ -29,18 +29,13 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        {/* Kartu Tanda Anggota */}
+        {/* Kartu gabungan: KTA + PPJI Pay */}
         <div className="mt-7">
-          <MemberCard member={member} now={NOW} />
-        </div>
-
-        {/* Banner promo */}
-        <div className="mt-6">
-          <PromoBanner />
+          <MemberWalletCard member={member} now={NOW} />
         </div>
 
         {/* Menu pintasan */}
-        <section className="mt-9">
+        <section className="mt-8">
           <h2 className="mb-4 text-base font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
             Menu
           </h2>
@@ -55,8 +50,13 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        {/* Banner promo — ringan, di bawah menu */}
+        <div className="mt-6">
+          <PromoBanner />
+        </div>
+
         {/* Fitur Organisasi */}
-        <div className="mt-9">
+        <div className="mt-8">
           <OrgFeatures />
         </div>
       </div>
@@ -100,11 +100,12 @@ function ShortcutIcon({ name }: { name: Shortcut["icon"] }) {
     "aria-hidden": true,
   };
   switch (name) {
-    case "profile":
+    case "news":
       return (
         <svg {...common}>
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" />
+          <path d="M4 5h13a1 1 0 0 1 1 1v12a2 2 0 0 0 2-2V8" />
+          <path d="M18 19H5a1 1 0 0 1-1-1V5" />
+          <path d="M7 9h7M7 12.5h7M7 16h4" />
         </svg>
       );
     case "topup":

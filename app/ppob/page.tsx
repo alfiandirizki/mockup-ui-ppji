@@ -25,7 +25,11 @@ export default function PpobPage() {
             </h2>
             <div className="grid grid-cols-4 gap-x-2 gap-y-6">
               {ppobItems.map((item) => (
-                <PpobButton key={item.label} item={item} />
+                <PpobButton
+                  key={item.id}
+                  item={item}
+                  onClick={() => router.push(`/ppob/${item.id}`)}
+                />
               ))}
             </div>
           </section>
@@ -35,10 +39,17 @@ export default function PpobPage() {
   );
 }
 
-function PpobButton({ item }: { item: PpobItem }) {
+function PpobButton({
+  item,
+  onClick,
+}: {
+  item: PpobItem;
+  onClick: () => void;
+}) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className="flex flex-col items-center gap-1.5 transition active:scale-95"
     >
       <span
