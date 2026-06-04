@@ -16,12 +16,51 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [agree, setAgree] = useState(false);
+  const [done, setDone] = useState(false);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    alert(`Pendaftaran terkirim untuk: ${name || "(kosong)"}`);
+    setDone(true);
   }
 
+  /* ---------------------- Layar Berhasil ---------------------- */
+  if (done) {
+    return (
+      <PhoneFrame>
+        <div className="flex min-h-full flex-col bg-linear-to-b from-[#eaf3fb] via-white to-white px-7 pb-10 pt-14 dark:from-[#0d1b2c] dark:via-neutral-950 dark:to-neutral-950">
+          {/* Ceklis + animasi */}
+          <div className="flex flex-col items-center text-center">
+            <div className="flex h-20 w-20 animate-[popIn_0.5s_ease-out] items-center justify-center rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30">
+              <CheckBig />
+            </div>
+            <h1 className="mt-5 animate-[fadeUp_0.5s_ease-out_0.15s_both] text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
+              Pendaftaran Berhasil
+            </h1>
+            <p className="mt-1.5 animate-[fadeUp_0.5s_ease-out_0.2s_both] max-w-64 text-sm leading-relaxed text-neutral-500">
+              Akun anggota Anda telah berhasil dibuat. Silakan masuk untuk
+              mulai menggunakan aplikasi.
+            </p>
+          </div>
+
+          {/* Ringkasan data */}
+          <div className="mt-8 animate-[fadeUp_0.5s_ease-out_0.3s_both] rounded-2xl bg-white p-5 shadow-sm shadow-neutral-200/50 ring-1 ring-neutral-100 dark:bg-neutral-900 dark:shadow-none dark:ring-neutral-800">
+            <SummaryRow label="Nama" value={name || "-"} />
+            <SummaryRow label="Email" value={email || "-"} />
+            <SummaryRow label="No. KTA" value={kta || "-"} mono />
+          </div>
+
+          {/* Tombol */}
+          <div className="mt-auto pt-8">
+            <Button onClick={() => router.replace("/login")}>
+              Masuk Sekarang
+            </Button>
+          </div>
+        </div>
+      </PhoneFrame>
+    );
+  }
+
+  /* ---------------------- Layar Form ---------------------- */
   return (
     <PhoneFrame>
       <Screen>
@@ -126,5 +165,42 @@ export default function RegisterPage() {
         </div>
       </Screen>
     </PhoneFrame>
+  );
+}
+
+function SummaryRow({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3 py-1.5">
+      <span className="text-sm text-neutral-500">{label}</span>
+      <span
+        className={`max-w-[60%] truncate text-right text-sm font-semibold text-neutral-800 dark:text-neutral-200 ${
+          mono ? "font-mono" : ""
+        }`}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function CheckBig() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M5 12.5 10 17l9-10"
+        stroke="white"
+        strokeWidth="2.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
