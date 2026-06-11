@@ -3,9 +3,10 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Check, CreditCard, User, Building2, Mail, Phone, Lock } from "lucide-react";
 import PhoneFrame from "../components/PhoneFrame";
 import PpjiLogo from "../components/PpjiLogo";
-import { Screen, BackButton, Button, Field, PasswordField } from "../components/ui";
+import { BackButton, Button, Checkbox, Field, PasswordField, Card, cx } from "../components/ui";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -23,34 +24,34 @@ export default function RegisterPage() {
     setDone(true);
   }
 
-  /* ---------------------- Layar Berhasil ---------------------- */
+  /* ---------------------- Berhasil ---------------------- */
   if (done) {
     return (
-      <PhoneFrame>
-        <div className="flex min-h-full flex-col bg-linear-to-b from-[#eaf3fb] via-white to-white px-7 pb-10 pt-14 dark:from-[#0d1b2c] dark:via-neutral-950 dark:to-neutral-950">
-          {/* Ceklis + animasi */}
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-20 w-20 animate-[popIn_0.5s_ease-out] items-center justify-center rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30">
-              <CheckBig />
+      <PhoneFrame statusTone="light">
+        <div className="flex min-h-full flex-col bg-canvas">
+          <div className="relative overflow-hidden bg-hero px-7 pb-16 pt-16 text-center text-white">
+            <div className="pointer-events-none absolute -right-12 -top-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
+            <div className="relative mx-auto flex h-20 w-20 animate-[popIn_0.5s_ease-out] items-center justify-center rounded-full bg-emerald-400 shadow-lg shadow-emerald-500/40 ring-8 ring-white/10">
+              <Check size={42} strokeWidth={3} />
             </div>
-            <h1 className="mt-5 animate-[fadeUp_0.5s_ease-out_0.15s_both] text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
+            <h1 className="relative mt-5 text-xl font-bold tracking-tight">
               Pendaftaran Berhasil
             </h1>
-            <p className="mt-1.5 animate-[fadeUp_0.5s_ease-out_0.2s_both] max-w-64 text-sm leading-relaxed text-neutral-500">
-              Akun anggota Anda telah berhasil dibuat. Silakan masuk untuk
-              mulai menggunakan aplikasi.
+            <p className="relative mx-auto mt-1.5 max-w-64 text-sm leading-relaxed text-white/70">
+              Akun anggota Anda telah dibuat. Silakan masuk untuk mulai
+              menggunakan aplikasi.
             </p>
           </div>
 
-          {/* Ringkasan data */}
-          <div className="mt-8 animate-[fadeUp_0.5s_ease-out_0.3s_both] rounded-2xl bg-white p-5 shadow-sm shadow-neutral-200/50 ring-1 ring-neutral-100 dark:bg-neutral-900 dark:shadow-none dark:ring-neutral-800">
-            <SummaryRow label="Nama" value={name || "-"} />
-            <SummaryRow label="Email" value={email || "-"} />
-            <SummaryRow label="No. KTA" value={kta || "-"} mono />
+          <div className="-mt-8 px-5">
+            <Card className="p-5">
+              <SummaryRow label="Nama" value={name || "-"} />
+              <SummaryRow label="Email" value={email || "-"} />
+              <SummaryRow label="No. KTA" value={kta || "-"} mono />
+            </Card>
           </div>
 
-          {/* Tombol */}
-          <div className="mt-auto pt-8">
+          <div className="mt-auto px-7 pb-8 pt-8">
             <Button onClick={() => router.replace("/login")}>
               Masuk Sekarang
             </Button>
@@ -60,110 +61,104 @@ export default function RegisterPage() {
     );
   }
 
-  /* ---------------------- Layar Form ---------------------- */
+  /* ---------------------- Form ---------------------- */
   return (
-    <PhoneFrame>
-      <Screen>
-        <div className="flex min-h-full flex-col pb-10 pt-6">
-          <BackButton onClick={() => router.push("/welcome")} />
+    <PhoneFrame statusTone="light">
+      <div className="flex min-h-full flex-col bg-canvas">
+        <div className="relative overflow-hidden rounded-b-3xl bg-hero px-7 pb-9 pt-14 text-white">
+          <div className="pointer-events-none absolute -right-12 -top-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-12 -left-10 h-40 w-40 rounded-full bg-gold-500/10 blur-2xl" />
+          <BackButton tone="light" onClick={() => router.push("/welcome")} />
+          <span className="relative mt-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-lg">
+            <PpjiLogo width={46} hideTagline />
+          </span>
+          <h1 className="relative mt-4 text-2xl font-extrabold tracking-tight">
+            Daftar Anggota
+          </h1>
+          <p className="relative mt-1 text-sm text-white/70">
+            Lengkapi data untuk Kartu Tanda Anggota
+          </p>
+        </div>
 
-          {/* Logo + judul */}
-          <div className="mb-7 mt-2 flex flex-col items-center">
-            <PpjiLogo width={130} hideTagline />
-            <h1 className="mt-5 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
-              Daftar Anggota
-            </h1>
-            <p className="mt-1 max-w-64 text-center text-sm text-neutral-500">
-              Lengkapi data untuk mendapatkan Kartu Tanda Anggota
-            </p>
-          </div>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-1 flex-col gap-4 px-7 pb-8 pt-7"
+        >
+          <Field
+            label="No. Kartu Tanda Anggota"
+            inputMode="numeric"
+            required
+            icon={<CreditCard size={18} />}
+            value={kta}
+            onChange={(e) => setKta(e.target.value)}
+            placeholder="Contoh: PPJI-0001234"
+          />
+          <Field
+            label="Nama Lengkap"
+            required
+            icon={<User size={18} />}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nama sesuai KTP"
+          />
+          <Field
+            label="Nama Usaha / Jasaboga"
+            required
+            icon={<Building2 size={18} />}
+            value={business}
+            onChange={(e) => setBusiness(e.target.value)}
+            placeholder="Contoh: Katering Berkah"
+          />
+          <Field
+            label="Email"
+            type="email"
+            required
+            icon={<Mail size={18} />}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="nama@email.com"
+          />
+          <Field
+            label="No. Telepon"
+            type="tel"
+            required
+            icon={<Phone size={18} />}
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="08xxxxxxxxxx"
+          />
+          <PasswordField
+            label="Password"
+            icon={<Lock size={18} />}
+            value={password}
+            onValueChange={setPassword}
+            placeholder="Minimal 8 karakter"
+          />
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <Field
-              label="No. Kartu Tanda Anggota"
-              type="text"
-              inputMode="numeric"
-              required
-              value={kta}
-              onChange={(e) => setKta(e.target.value)}
-              placeholder="Contoh: PPJI-0001234"
-            />
-            <Field
-              label="Nama Lengkap"
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nama sesuai KTP"
-            />
-            <Field
-              label="Nama Usaha / Jasaboga"
-              type="text"
-              required
-              value={business}
-              onChange={(e) => setBusiness(e.target.value)}
-              placeholder="Contoh: Katering Berkah"
-            />
-            <Field
-              label="Email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="nama@email.com"
-            />
-            <Field
-              label="No. Telepon"
-              type="tel"
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="08xxxxxxxxxx"
-            />
-            <PasswordField
-              label="Password"
-              value={password}
-              onValueChange={setPassword}
-              placeholder="Minimal 8 karakter"
-            />
+          <Checkbox checked={agree} onChange={setAgree} required>
+            Saya menyetujui{" "}
+            <span className="font-semibold text-brand-700">
+              syarat &amp; ketentuan
+            </span>{" "}
+            keanggotaan PPJI
+          </Checkbox>
 
-            {/* Persetujuan */}
-            <label className="flex cursor-pointer items-start gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-              <input
-                type="checkbox"
-                required
-                checked={agree}
-                onChange={(e) => setAgree(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[#1c5fa8]"
-              />
-              <span>
-                Saya menyetujui{" "}
-                <span className="font-medium text-[#1c5fa8]">
-                  syarat &amp; ketentuan
-                </span>{" "}
-                keanggotaan PPJI
-              </span>
-            </label>
+          <Button type="submit" className="mt-2">
+            Daftar
+          </Button>
 
-            <Button type="submit" className="mt-2">
-              Daftar
-            </Button>
-          </form>
-
-          {/* Sudah punya akun */}
-          <p className="mt-auto pt-8 text-center text-sm text-neutral-500">
+          <p className="mt-auto pt-4 text-center text-sm text-neutral-500">
             Sudah punya akun?{" "}
             <button
               type="button"
               onClick={() => router.push("/login")}
-              className="font-semibold text-[#1c5fa8] hover:underline"
+              className="font-bold text-brand-700 hover:underline"
             >
               Masuk
             </button>
           </p>
-        </div>
-      </Screen>
+        </form>
+      </div>
     </PhoneFrame>
   );
 }
@@ -181,26 +176,13 @@ function SummaryRow({
     <div className="flex items-start justify-between gap-3 py-1.5">
       <span className="text-sm text-neutral-500">{label}</span>
       <span
-        className={`max-w-[60%] truncate text-right text-sm font-semibold text-neutral-800 dark:text-neutral-200 ${
-          mono ? "font-mono" : ""
-        }`}
+        className={cx(
+          "max-w-[60%] truncate text-right text-sm font-semibold text-brand-900",
+          mono && "font-mono tnum",
+        )}
       >
         {value}
       </span>
     </div>
-  );
-}
-
-function CheckBig() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M5 12.5 10 17l9-10"
-        stroke="white"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

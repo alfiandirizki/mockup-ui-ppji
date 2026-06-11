@@ -1,25 +1,21 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Check, Share2, Wallet } from "lucide-react";
 import { formatRupiah } from "../lib/dummy";
+import { Button, cx } from "./ui";
 
 export type Detail = { label: string; value: string; mono?: boolean };
 
 type Props = {
-  /** Judul. Default "Transaksi Berhasil". */
   title?: string;
-  /** Keterangan di bawah judul, mis. "Pulsa & Data berhasil diproses". */
   caption: string;
   amount: number;
   details: Detail[];
-  /** Sisa saldo setelah transaksi (dummy). */
   saldoAfter: number;
 };
 
-/**
- * Layar "Transaksi Berhasil" bersama untuk PPOB, Transfer, dan Scan QR.
- * Ceklis beranimasi, nominal, detail transaksi, sisa saldo, dan tombol aksi.
- */
+/** Layar "Transaksi Berhasil" bersama — gaya e-receipt navy + emas. */
 export default function TransactionSuccess({
   title = "Transaksi Berhasil",
   caption,
@@ -30,92 +26,78 @@ export default function TransactionSuccess({
   const router = useRouter();
 
   return (
-    <div className="flex min-h-full flex-col bg-[#f4f7fb] px-6 pb-8 pt-12 dark:bg-neutral-950">
-      {/* Ceklis + animasi */}
-      <div className="flex flex-col items-center text-center">
-        <div className="flex h-20 w-20 animate-[popIn_0.5s_ease-out] items-center justify-center rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30">
-          <CheckBig />
+    <div className="flex min-h-full flex-col bg-canvas">
+      {/* Hero navy + ceklis */}
+      <div className="relative overflow-hidden bg-hero px-6 pb-16 pt-16 text-center text-white">
+        <div className="pointer-events-none absolute -right-12 -top-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-gold-500/15 blur-2xl" />
+        <div className="relative mx-auto flex h-20 w-20 animate-[popIn_0.5s_ease-out] items-center justify-center rounded-full bg-emerald-400 shadow-lg shadow-emerald-500/40 ring-8 ring-white/10">
+          <Check size={42} strokeWidth={3} className="text-white" />
         </div>
-        <h1 className="mt-5 animate-[fadeUp_0.5s_ease-out_0.15s_both] text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
+        <h1 className="relative mt-5 animate-[fadeUp_0.5s_ease-out_0.15s_both] text-xl font-bold tracking-tight">
           {title}
         </h1>
-        <p className="mt-1 animate-[fadeUp_0.5s_ease-out_0.2s_both] text-sm text-neutral-500">
+        <p className="relative mt-1 animate-[fadeUp_0.5s_ease-out_0.2s_both] text-sm text-white/70">
           {caption}
         </p>
-        <p className="mt-4 animate-[fadeUp_0.5s_ease-out_0.25s_both] text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
+        <p className="relative mt-4 animate-[fadeUp_0.5s_ease-out_0.25s_both] text-4xl font-extrabold tracking-tight tnum">
           {formatRupiah(amount)}
         </p>
       </div>
 
-      {/* Detail transaksi */}
-      <div className="mt-8 animate-[fadeUp_0.5s_ease-out_0.3s_both] rounded-2xl bg-white p-5 shadow-sm shadow-neutral-200/50 ring-1 ring-neutral-100 dark:bg-neutral-900 dark:shadow-none dark:ring-neutral-800">
-        {details.map((d, i) => (
-          <DetailRow key={i} {...d} />
-        ))}
-        <div className="my-3 border-t border-dashed border-neutral-200 dark:border-neutral-800" />
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-neutral-500">Total Bayar</span>
-          <span className="text-base font-bold text-neutral-900 dark:text-neutral-50">
-            {formatRupiah(amount)}
+      {/* Struk */}
+      <div className="-mt-8 px-5">
+        <div className="relative animate-[fadeUp_0.5s_ease-out_0.3s_both] rounded-3xl bg-white p-5 shadow-lg shadow-brand-900/10 ring-1 ring-neutral-100">
+          {/* perforasi */}
+          <span className="absolute -left-2.5 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-canvas" />
+          <span className="absolute -right-2.5 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-canvas" />
+
+          {details.map((d, i) => (
+            <div
+              key={i}
+              className="flex items-start justify-between gap-3 py-1.5"
+            >
+              <span className="text-sm text-neutral-500">{d.label}</span>
+              <span
+                className={cx(
+                  "max-w-[60%] text-right text-sm font-semibold text-brand-900",
+                  d.mono && "font-mono tnum",
+                )}
+              >
+                {d.value}
+              </span>
+            </div>
+          ))}
+
+          <div className="my-3 border-t border-dashed border-neutral-200" />
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-neutral-600">
+              Total Bayar
+            </span>
+            <span className="text-lg font-extrabold tracking-tight text-brand-900 tnum">
+              {formatRupiah(amount)}
+            </span>
+          </div>
+        </div>
+
+        {/* Sisa saldo */}
+        <div className="mt-3 flex animate-[fadeUp_0.5s_ease-out_0.35s_both] items-center justify-between rounded-2xl bg-brand-50 px-5 py-3.5 ring-1 ring-brand-100">
+          <span className="flex items-center gap-2 text-sm font-medium text-brand-800">
+            <Wallet size={17} /> Sisa Saldo PPJI Pay
+          </span>
+          <span className="text-sm font-bold text-brand-700 tnum">
+            {formatRupiah(saldoAfter)}
           </span>
         </div>
       </div>
 
-      {/* Sisa saldo (dummy) */}
-      <div className="mt-3 animate-[fadeUp_0.5s_ease-out_0.35s_both] flex items-center justify-between rounded-2xl bg-[#1c5fa8]/5 px-5 py-3.5 ring-1 ring-[#1c5fa8]/10">
-        <span className="text-sm text-neutral-600 dark:text-neutral-300">
-          Sisa Saldo PPJI Pay
-        </span>
-        <span className="text-sm font-bold text-[#1c5fa8]">
-          {formatRupiah(saldoAfter)}
-        </span>
-      </div>
-
       {/* Tombol */}
-      <div className="mt-auto flex flex-col gap-3 pt-8">
-        <button
-          type="button"
-          onClick={() => router.push("/dashboard")}
-          className="w-full rounded-2xl bg-[#1c5fa8] py-4 text-sm font-bold text-white shadow-md shadow-[#1c5fa8]/25 transition hover:bg-[#164d8c] active:scale-[0.99]"
-        >
-          Selesai
-        </button>
-        <button
-          type="button"
-          className="w-full rounded-2xl bg-white py-4 text-sm font-semibold text-[#1c5fa8] ring-1 ring-[#1c5fa8]/30 transition hover:bg-[#1c5fa8]/5 active:scale-[0.99] dark:bg-neutral-900"
-        >
-          Lihat Struk
-        </button>
+      <div className="mt-auto flex flex-col gap-3 px-5 pb-8 pt-8">
+        <Button onClick={() => router.push("/dashboard")}>Selesai</Button>
+        <Button variant="outline">
+          <Share2 size={17} /> Bagikan Struk
+        </Button>
       </div>
     </div>
-  );
-}
-
-function DetailRow({ label, value, mono }: Detail) {
-  return (
-    <div className="flex items-start justify-between gap-3 py-1.5">
-      <span className="text-sm text-neutral-500">{label}</span>
-      <span
-        className={`text-right text-sm font-semibold text-neutral-800 dark:text-neutral-200 ${
-          mono ? "font-mono" : ""
-        }`}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function CheckBig() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M5 12.5 10 17l9-10"
-        stroke="white"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

@@ -2,32 +2,128 @@
 
 import type { ReactNode, InputHTMLAttributes } from "react";
 import { useState } from "react";
+import Image from "next/image";
+import { Check, ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
+
+/** Gabung className kondisional. */
+export function cx(...parts: (string | false | null | undefined)[]): string {
+  return parts.filter(Boolean).join(" ");
+}
 
 /* ------------------------------------------------------------------ */
-/* Layar dengan latar gradient biru lembut + dukungan dark mode        */
+/* Layar dasar — kanvas terang lembut                                  */
 /* ------------------------------------------------------------------ */
-export function Screen({ children }: { children: ReactNode }) {
+export function Screen({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <div className="flex min-h-full flex-col bg-linear-to-b from-[#eaf3fb] via-white to-white px-7 dark:from-[#0d1b2c] dark:via-neutral-950 dark:to-neutral-950">
+    <div className={cx("flex min-h-full flex-col bg-canvas", className)}>
       {children}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Pill tabs / filter chips — gaya soft & airy, konsisten antar halaman */
+/* Foto & Avatar (next/image, remote)                                  */
+/* ------------------------------------------------------------------ */
+export function Avatar({
+  src,
+  alt,
+  size = 44,
+  ring = false,
+  className = "",
+}: {
+  src: string;
+  alt: string;
+  size?: number;
+  ring?: boolean;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cx(
+        "relative inline-block shrink-0 overflow-hidden rounded-full bg-brand-100",
+        ring && "ring-2 ring-white",
+        className,
+      )}
+      style={{ width: size, height: size }}
+    >
+      <Image src={src} alt={alt} fill sizes={`${size}px`} className="object-cover" />
+    </span>
+  );
+}
+
+/** Foto sampul rasio bebas (parent harus relative + tinggi). */
+export function Photo({
+  src,
+  alt,
+  className = "",
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  priority?: boolean;
+}) {
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      priority={priority}
+      sizes="430px"
+      className={cx("object-cover", className)}
+    />
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Pill / segmented tabs — navy aktif                                  */
 /* ------------------------------------------------------------------ */
 type PillTabsProps<T extends string> = {
   options: { key: T; label: string }[];
   active: T;
   onChange: (key: T) => void;
+  /** "pill" = chip terpisah; "segment" = satu track berisi segmen. */
+  variant?: "pill" | "segment";
+  /** "onDark" untuk tab di atas header navy (kontras dibalik). */
+  tone?: "light" | "onDark";
 };
 
 export function PillTabs<T extends string>({
   options,
   active,
   onChange,
+  variant = "pill",
+  tone = "light",
 }: PillTabsProps<T>) {
+  if (variant === "segment") {
+    return (
+      <div className="flex gap-1 rounded-full bg-brand-50 p-1 ring-1 ring-brand-100">
+        {options.map((o) => {
+          const on = o.key === active;
+          return (
+            <button
+              key={o.key}
+              type="button"
+              onClick={() => onChange(o.key)}
+              className={cx(
+                "flex-1 rounded-full px-3 py-2 text-sm font-semibold transition active:scale-[0.98]",
+                on ? "bg-brand-700 text-white shadow-sm" : "text-brand-700/70",
+              )}
+            >
+              {o.label}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+  const dark = tone === "onDark";
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((o) => {
@@ -37,11 +133,16 @@ export function PillTabs<T extends string>({
             key={o.key}
             type="button"
             onClick={() => onChange(o.key)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95 ${
-              on
-                ? "bg-[#1c5fa8] text-white shadow-sm shadow-[#1c5fa8]/25"
-                : "bg-white text-neutral-500 ring-1 ring-neutral-200/80 hover:text-[#1c5fa8] dark:bg-neutral-900 dark:text-neutral-400 dark:ring-neutral-800"
-            }`}
+            className={cx(
+              "rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95",
+              dark
+                ? on
+                  ? "bg-white text-brand-800 shadow-sm"
+                  : "bg-white/12 text-white/75 ring-1 ring-white/15 hover:text-white"
+                : on
+                  ? "bg-brand-700 text-white shadow-sm shadow-brand-700/25"
+                  : "bg-white text-neutral-500 ring-1 ring-neutral-200/80 hover:text-brand-700",
+            )}
           >
             {o.label}
           </button>
@@ -51,7 +152,7 @@ export function PillTabs<T extends string>({
   );
 }
 
-/** Kartu putih dasar — radius besar & shadow lembut. */
+/** Kartu putih dasar. */
 export function Card({
   children,
   className = "",
@@ -63,12 +164,15 @@ export function Card({
   as?: "div" | "button";
   onClick?: () => void;
 }) {
-  const cls = `rounded-2xl bg-white shadow-sm shadow-neutral-200/50 ring-1 ring-neutral-100 dark:bg-neutral-900 dark:shadow-none dark:ring-neutral-800 ${className}`;
+  const cls = cx(
+    "rounded-3xl bg-white shadow-sm shadow-brand-900/5 ring-1 ring-neutral-100",
+    className,
+  );
   if (as === "button") {
     return (
       <button
         type="button"
-        className={`text-left transition active:scale-[0.99] ${cls}`}
+        className={cx("text-left transition active:scale-[0.99]", cls)}
         {...rest}
       >
         {children}
@@ -78,38 +182,184 @@ export function Card({
   return <div className={cls}>{children}</div>;
 }
 
+/** Judul seksi + aksi opsional (mis. "Lihat semua"). */
+export function SectionHeader({
+  title,
+  action,
+  onAction,
+  className = "",
+}: {
+  title: string;
+  action?: string;
+  onAction?: () => void;
+  className?: string;
+}) {
+  return (
+    <div className={cx("mb-3 flex items-center justify-between", className)}>
+      <h2 className="text-base font-bold tracking-tight text-brand-900">
+        {title}
+      </h2>
+      {action && (
+        <button
+          type="button"
+          onClick={onAction}
+          className="flex items-center gap-0.5 text-xs font-semibold text-brand-600 active:opacity-70"
+        >
+          {action}
+          <ChevronRight size={14} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Baris daftar serbaguna. */
+export function ListRow({
+  leading,
+  title,
+  subtitle,
+  trailing,
+  onClick,
+  className = "",
+}: {
+  leading?: ReactNode;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  trailing?: ReactNode;
+  onClick?: () => void;
+  className?: string;
+}) {
+  const inner = (
+    <>
+      {leading && <div className="shrink-0">{leading}</div>}
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-semibold text-brand-900">
+          {title}
+        </div>
+        {subtitle && (
+          <div className="truncate text-xs text-neutral-500">{subtitle}</div>
+        )}
+      </div>
+      {trailing && <div className="shrink-0">{trailing}</div>}
+    </>
+  );
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={cx(
+          "flex w-full items-center gap-3 text-left transition active:scale-[0.99]",
+          className,
+        )}
+      >
+        {inner}
+      </button>
+    );
+  }
+  return <div className={cx("flex items-center gap-3", className)}>{inner}</div>;
+}
+
+/** Checkbox kustom on-brand dengan tap-target ≥44px. */
+export function Checkbox({
+  checked,
+  onChange,
+  children,
+  required = false,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  children: ReactNode;
+  required?: boolean;
+}) {
+  return (
+    <label className="flex min-h-11 cursor-pointer items-start gap-2.5 py-1 text-sm text-neutral-600">
+      <span
+        onClick={() => onChange(!checked)}
+        className={cx(
+          "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition",
+          checked
+            ? "border-brand-700 bg-brand-700 text-white"
+            : "border-neutral-300 bg-white",
+        )}
+      >
+        {checked && <Check size={13} strokeWidth={3} />}
+      </span>
+      {required && (
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={() => {}}
+          required
+          className="sr-only"
+          aria-hidden
+          tabIndex={-1}
+        />
+      )}
+      <span className="pt-0.5 leading-snug">{children}</span>
+    </label>
+  );
+}
+
+/** Kotak ikon berwarna (quick menu). */
+export function IconTile({
+  children,
+  className = "",
+  size = 44,
+}: {
+  children: ReactNode;
+  className?: string;
+  size?: number;
+}) {
+  return (
+    <span
+      className={cx(
+        "flex items-center justify-center rounded-2xl bg-brand-50 text-brand-700",
+        className,
+      )}
+      style={{ width: size, height: size }}
+    >
+      {children}
+    </span>
+  );
+}
+
 /* ------------------------------------------------------------------ */
-/* Tombol kembali (panah kiri) di pojok atas                           */
+/* Tombol kembali bulat                                                */
 /* ------------------------------------------------------------------ */
-export function BackButton({ onClick }: { onClick: () => void }) {
+export function BackButton({
+  onClick,
+  tone = "dark",
+}: {
+  onClick: () => void;
+  tone?: "dark" | "light";
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label="Kembali"
-      className="-ml-1 flex h-10 w-10 items-center justify-center rounded-full text-neutral-600 transition hover:bg-black/5 active:scale-95 dark:text-neutral-300 dark:hover:bg-white/10"
+      className={cx(
+        "flex h-10 w-10 items-center justify-center rounded-full transition active:scale-95",
+        tone === "light"
+          ? "bg-white/15 text-white hover:bg-white/25"
+          : "bg-white text-brand-900 ring-1 ring-neutral-200 hover:bg-neutral-50",
+      )}
     >
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path
-          d="M15 18l-6-6 6-6"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <ChevronLeft size={22} />
     </button>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Tombol utama (primary / outline)                                    */
+/* Tombol utama                                                        */
 /* ------------------------------------------------------------------ */
 type ButtonProps = {
   children: ReactNode;
   onClick?: () => void;
   type?: "button" | "submit";
-  variant?: "primary" | "outline";
+  variant?: "primary" | "outline" | "ghost" | "gold" | "destructive";
+  disabled?: boolean;
   className?: string;
 };
 
@@ -118,19 +368,24 @@ export function Button({
   onClick,
   type = "button",
   variant = "primary",
+  disabled = false,
   className = "",
 }: ButtonProps) {
   const base =
-    "w-full rounded-2xl py-4 text-sm font-semibold transition active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-[#1c5fa8]/30";
-  const styles =
-    variant === "primary"
-      ? "bg-[#1c5fa8] text-white shadow-sm shadow-[#1c5fa8]/25 hover:bg-[#164d8c]"
-      : "border border-[#1c5fa8]/40 bg-white text-[#1c5fa8] hover:bg-[#1c5fa8]/5 dark:bg-transparent dark:hover:bg-[#1c5fa8]/10";
+    "inline-flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-bold transition active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50";
+  const styles = {
+    primary: "bg-brand-700 text-white shadow-lg shadow-brand-700/25 hover:bg-brand-800",
+    gold: "bg-gold-500 text-brand-950 shadow-lg shadow-gold-500/30 hover:bg-gold-400",
+    outline: "border border-brand-200 bg-white text-brand-700 hover:bg-brand-50",
+    ghost: "bg-brand-50 text-brand-700 hover:bg-brand-100",
+    destructive: "bg-white text-rose-600 ring-1 ring-rose-100 shadow-sm shadow-brand-900/5 hover:bg-rose-50",
+  }[variant];
   return (
     <button
       type={type}
       onClick={onClick}
-      className={`${base} ${styles} ${className}`}
+      disabled={disabled}
+      className={cx(base, styles, className)}
     >
       {children}
     </button>
@@ -138,34 +393,41 @@ export function Button({
 }
 
 /* ------------------------------------------------------------------ */
-/* Input field dengan label                                            */
+/* Input field                                                         */
 /* ------------------------------------------------------------------ */
 type FieldProps = {
   label: string;
+  icon?: ReactNode;
 } & InputHTMLAttributes<HTMLInputElement>;
 
-const inputClass =
-  "w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1c5fa8] focus:ring-2 focus:ring-[#1c5fa8]/20 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100";
+const inputBase =
+  "w-full rounded-2xl border border-neutral-200 bg-white py-3.5 text-sm text-brand-900 outline-none transition placeholder:text-neutral-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15";
 
-export function Field({ label, ...rest }: FieldProps) {
+export function Field({ label, icon, ...rest }: FieldProps) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-        {label}
-      </span>
-      <input className={inputClass} {...rest} />
+      <span className="text-sm font-semibold text-neutral-700">{label}</span>
+      <div className="relative">
+        {icon && (
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
+            {icon}
+          </span>
+        )}
+        <input className={cx(inputBase, icon ? "pl-11 pr-4" : "px-4")} {...rest} />
+      </div>
     </label>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Input password dengan toggle show/hide                              */
+/* Input password                                                      */
 /* ------------------------------------------------------------------ */
 type PasswordFieldProps = {
   label: string;
   value: string;
   onValueChange: (v: string) => void;
   placeholder?: string;
+  icon?: ReactNode;
 };
 
 export function PasswordField({
@@ -173,60 +435,35 @@ export function PasswordField({
   value,
   onValueChange,
   placeholder = "••••••••",
+  icon,
 }: PasswordFieldProps) {
   const [show, setShow] = useState(false);
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-        {label}
-      </span>
+      <span className="text-sm font-semibold text-neutral-700">{label}</span>
       <div className="relative">
+        {icon && (
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
+            {icon}
+          </span>
+        )}
         <input
           type={show ? "text" : "password"}
           required
           value={value}
           onChange={(e) => onValueChange(e.target.value)}
           placeholder={placeholder}
-          className={`${inputClass} pr-11`}
+          className={cx(inputBase, icon ? "pl-11 pr-11" : "px-4 pr-11")}
         />
         <button
           type="button"
           onClick={() => setShow((v) => !v)}
           aria-label={show ? "Sembunyikan password" : "Lihat password"}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-600 dark:hover:text-neutral-200"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-600"
         >
-          {show ? <EyeOff /> : <Eye />}
+          {show ? <EyeOff size={20} /> : <Eye size={20} />}
         </button>
       </div>
     </label>
-  );
-}
-
-function Eye() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function EyeOff() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M3 3l18 18M10.6 10.7a3 3 0 0 0 4.2 4.2M9.9 5.2A9.5 9.5 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.3 6.3A17 17 0 0 0 2 12s3.6 7 10 7a9.6 9.6 0 0 0 3.7-.7"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

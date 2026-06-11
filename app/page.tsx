@@ -9,25 +9,31 @@ export default function SplashPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const t = setTimeout(() => router.replace("/welcome"), 2500);
+    const t = setTimeout(() => router.replace("/welcome"), 2400);
     return () => clearTimeout(t);
   }, [router]);
 
   return (
-    <PhoneFrame>
-      <div className="relative flex h-full flex-col items-center justify-center gap-12 overflow-hidden bg-linear-to-b from-[#eaf3fb] via-white to-white px-8 dark:from-[#0d1b2c] dark:via-neutral-950 dark:to-neutral-950">
-        {/* Aksen lingkaran blur lembut di latar */}
-        <div className="pointer-events-none absolute -top-16 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-[#1c5fa8]/10 blur-3xl" />
+    <PhoneFrame statusTone="light">
+      <div className="relative flex h-full flex-col items-center justify-center gap-10 overflow-hidden bg-hero px-8 text-white">
+        <div className="pointer-events-none absolute -top-10 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-10 left-1/2 h-52 w-52 -translate-x-1/2 rounded-full bg-gold-500/15 blur-3xl" />
 
-        <PpjiLogo
-          width={230}
-          className="relative animate-[fadeUp_0.7s_ease-out]"
-        />
+        <div className="relative flex animate-[fadeUp_0.7s_ease-out] flex-col items-center gap-5">
+          <span className="flex h-28 w-28 items-center justify-center rounded-4xl bg-white shadow-2xl shadow-black/30">
+            <PpjiLogo width={92} hideTagline />
+          </span>
+          <div className="text-center">
+            <h1 className="text-2xl font-extrabold tracking-tight">PPJI Mobile</h1>
+            <p className="mt-1 text-sm text-white/65">
+              Perkumpulan Penyelenggara Jasaboga Indonesia
+            </p>
+          </div>
+        </div>
 
-        {/* Spinner loading */}
         <div className="relative flex animate-[fadeUp_0.7s_ease-out_0.2s_both] flex-col items-center gap-3">
-          <span className="h-7 w-7 animate-spin rounded-full border-[3px] border-[#1c5fa8]/20 border-t-[#1c5fa8]" />
-          <span className="text-xs font-medium tracking-wide text-neutral-400">
+          <span className="h-7 w-7 animate-spin rounded-full border-[3px] border-white/20 border-t-gold-500" />
+          <span className="text-xs font-medium tracking-wide text-white/55">
             Memuat…
           </span>
         </div>

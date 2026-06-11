@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Archive, Users, ChevronRight, MessageSquare } from "lucide-react";
 import PhoneFrame from "../components/PhoneFrame";
-import BottomNav from "../components/BottomNav";
 import PageHeader, { HeaderAction } from "../components/PageHeader";
-import { PillTabs } from "../components/ui";
+import { cx, Photo, Card, PillTabs, SectionHeader } from "../components/ui";
 import {
   news,
   newsTabs,
@@ -14,62 +15,96 @@ import {
 } from "../lib/dummy";
 
 export default function NewsPage() {
+  const router = useRouter();
   const [tab, setTab] = useState<NewsTab>("berita");
   const list = news.filter((n) => n.tab === tab);
+  const featured = list[0] ?? null;
+  const rest = list.slice(1);
 
   return (
-    <PhoneFrame bottomBar={<BottomNav activeIndex={-1} />}>
-      <div className="min-h-full bg-[#f4f7fb] dark:bg-neutral-950">
+    <PhoneFrame>
+      <div className="min-h-full bg-canvas">
         <PageHeader
-          title="Berita"
+          title="Berita & Info"
           subtitle="Kabar & informasi PPJI"
+          onBack={() => router.back()}
           action={
             <HeaderAction label="Arsip berita">
-              <ArchiveIcon />
+              <Archive size={20} />
             </HeaderAction>
           }
-        />
+        >
+          <PillTabs options={newsTabs} active={tab} onChange={setTab} tone="onDark" />
+        </PageHeader>
 
-        <div className="px-5 pb-6 pt-5">
-          {/* Tab */}
-          <PillTabs options={newsTabs} active={tab} onChange={setTab} />
-
-          {/* List berita */}
-          <ul className="mt-5 flex flex-col gap-3">
-            {list.map((item) => (
-              <li key={item.id}>
-                <NewsCard item={item} />
-              </li>
-            ))}
-            {list.length === 0 && (
-              <li className="py-10 text-center text-sm text-neutral-400">
-                Belum ada konten.
-              </li>
-            )}
-          </ul>
-
-          {/* Komunitas */}
-          <section className="mt-8">
-            <h2 className="mb-4 text-base font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
-              Komunitas
-            </h2>
+        <div className="px-5 pb-8 pt-5">
+          {/* Featured card */}
+          {featured && (
             <button
               type="button"
-              className="flex w-full items-center gap-4 rounded-2xl bg-white p-4 text-left shadow-sm shadow-neutral-200/50 ring-1 ring-neutral-100 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-[#1c5fa8]/30 active:scale-[0.99] dark:bg-neutral-900 dark:shadow-none dark:ring-neutral-800"
+              className="mb-4 w-full overflow-hidden rounded-3xl bg-white text-left shadow-sm shadow-brand-900/5 ring-1 ring-neutral-100 transition active:scale-[0.99]"
             >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#1c5fa8] text-white shadow-sm shadow-[#1c5fa8]/30">
-                <UsersIcon />
+              {/* Cover photo */}
+              <div className="relative h-40 w-full overflow-hidden">
+                <Photo src={featured.image} alt={featured.title} priority />
+                {/* Gradient scrim */}
+                <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-brand-950/60 via-transparent to-transparent" />
+                {/* Tab badge */}
+                <span className="absolute left-3 top-3 rounded-full bg-gold-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-950">
+                  {newsTabs.find((t) => t.key === tab)?.label ?? tab}
+                </span>
+              </div>
+              <div className="px-4 pb-4 pt-3">
+                <p className="line-clamp-2 text-[15px] font-bold leading-snug text-brand-900">
+                  {featured.title}
+                </p>
+                <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-neutral-500">
+                  {featured.excerpt}
+                </p>
+                <p className="mt-2 text-xs text-neutral-400">{featured.time}</p>
+              </div>
+            </button>
+          )}
+
+          {/* Rest of the list */}
+          {rest.length > 0 && (
+            <ul className="flex flex-col gap-3">
+              {rest.map((item) => (
+                <li key={item.id}>
+                  <NewsCard item={item} />
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {list.length === 0 && (
+            <p className="py-10 text-center text-sm text-neutral-400">
+              Belum ada konten.
+            </p>
+          )}
+
+          {/* Forum Diskusi */}
+          <section className="mt-8">
+            <SectionHeader title="Komunitas" />
+            <Card
+              as="button"
+              onClick={() => {}}
+              className="flex w-full items-center gap-4 p-4"
+            >
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-700 text-white shadow-sm shadow-brand-700/30">
+                <Users size={22} />
               </span>
-              <div className="flex-1">
-                <p className="text-[15px] font-bold text-neutral-900 dark:text-neutral-50">
+              <div className="flex-1 text-left">
+                <p className="text-[15px] font-bold text-brand-900">
                   {community.title}
                 </p>
-                <p className="mt-0.5 text-sm text-neutral-500">
+                <p className="mt-0.5 flex items-center gap-1.5 text-sm text-neutral-500">
+                  <MessageSquare size={13} className="text-brand-400" />
                   {community.members}
                 </p>
               </div>
-              <ChevronRight />
-            </button>
+              <ChevronRight size={18} className="shrink-0 text-neutral-300" />
+            </Card>
           </section>
         </div>
       </div>
@@ -81,73 +116,26 @@ function NewsCard({ item }: { item: NewsItem }) {
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-4 rounded-2xl bg-white p-3.5 text-left shadow-sm shadow-neutral-200/50 ring-1 ring-neutral-100 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-[#1c5fa8]/30 active:scale-[0.99] dark:bg-neutral-900 dark:shadow-none dark:ring-neutral-800"
+      className={cx(
+        "flex w-full items-center gap-3.5 rounded-2xl bg-white p-3.5 text-left",
+        "shadow-sm shadow-brand-900/5 ring-1 ring-neutral-100",
+        "transition active:scale-[0.99]",
+      )}
     >
-      {/* Thumbnail placeholder */}
-      <span className="h-16 w-16 shrink-0 rounded-2xl bg-linear-to-br from-[#cfe0f4] to-[#eaf3fb] dark:from-neutral-800 dark:to-neutral-700" />
+      {/* Thumbnail */}
+      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl">
+        <Photo src={item.image} alt={item.title} />
+      </div>
+
       <div className="min-w-0 flex-1">
-        <p className="line-clamp-2 text-sm font-bold leading-snug text-neutral-900 dark:text-neutral-50">
+        <p className="line-clamp-2 text-sm font-bold leading-snug text-brand-900">
           {item.title}
+        </p>
+        <p className="mt-1 line-clamp-1 text-xs leading-relaxed text-neutral-500">
+          {item.excerpt}
         </p>
         <p className="mt-1.5 text-xs text-neutral-400">{item.time}</p>
       </div>
     </button>
-  );
-}
-
-/* ------------------------------- ikon ------------------------------- */
-
-function ArchiveIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M4 6h16v3H4zM5 9v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M9.5 13h5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function UsersIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="9" cy="9" r="3" stroke="currentColor" strokeWidth="1.8" />
-      <path
-        d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <path
-        d="M16 7a3 3 0 0 1 0 6M17.5 19c0-2.2-.9-4-2.3-5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function ChevronRight() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-      className="shrink-0 text-neutral-300 dark:text-neutral-600"
-    >
-      <path
-        d="M9 6l6 6-6 6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

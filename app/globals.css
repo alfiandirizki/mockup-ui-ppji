@@ -1,30 +1,100 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================
+   PPJI Mobile — Design Tokens
+   Tema: Livin' by Mandiri × OVO. Navy gelap + aksen emas.
+   ============================================================ */
+@theme {
+  /* Brand — Navy Livin (gelap pekat) */
+  --color-brand-50: #eef4fc;
+  --color-brand-100: #d8e6f8;
+  --color-brand-200: #b4ccef;
+  --color-brand-300: #84a9e1;
+  --color-brand-400: #5380cd;
+  --color-brand-500: #2e63b0;
+  --color-brand-600: #1b4f9b; /* tombol utama */
+  --color-brand-700: #14457f; /* deep */
+  --color-brand-800: #103a73; /* hero mid */
+  --color-brand-900: #0b1f3a; /* hero gelap / ink brand */
+  --color-brand-950: #071529;
+
+  /* Aksen Emas (ala Mandiri) */
+  --color-gold-50: #fdf8ed;
+  --color-gold-100: #f9ecc9;
+  --color-gold-200: #f3d894;
+  --color-gold-300: #edc466;
+  --color-gold-400: #e7b34a;
+  --color-gold-500: #e0a53b; /* aksen utama */
+  --color-gold-600: #c5862a;
+  --color-gold-700: #9c6620;
+
+  /* Permukaan netral hangat */
+  --color-canvas: #eef2f7;
+
+  /* Font (dipetakan dari next/font) */
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jbmono), ui-monospace, monospace;
+
+  /* Radius */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
+
+  /* Easing & animasi */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-up: fadeUp 0.45s var(--ease-spring) both;
+  --animate-pop-in: popIn 0.5s var(--ease-spring) both;
+  --animate-shimmer: shimmer 1.4s linear infinite;
+  --animate-rise: rise 0.5s var(--ease-spring) both;
+  --animate-spin-slow: spin 7s linear infinite;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ---- Base ---- */
+html,
+body {
+  background: #c9d3df;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  color: #0f172a;
+  font-family: var(--font-sans);
+  /* Latar "meja" agar device terlihat seperti foto produk */
+  background:
+    radial-gradient(120% 90% at 50% -10%, #e9eef5 0%, #c9d3df 55%, #aab8c9 100%);
 }
 
+/* Angka uang selalu rapi */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sembunyikan scrollbar di area scroll dalam frame */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Gradient hero brand siap pakai */
+.bg-hero {
+  background-image: linear-gradient(135deg, #103a73 0%, #0b1f3a 60%, #071529 100%);
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    #e6ebf2 30%,
+    #f4f7fb 50%,
+    #e6ebf2 70%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* ---- Keyframes ---- */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -33,6 +103,17 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -47,5 +128,11 @@ body {
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
   }
 }

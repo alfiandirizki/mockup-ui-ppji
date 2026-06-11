@@ -32,12 +32,12 @@ export default function PpjiLogo({
     >
       <defs>
         <linearGradient id="ppji-rim" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#5aa9e0" />
-          <stop offset="1" stopColor="#2f7cc4" />
+          <stop offset="0" stopColor="#3a72c0" />
+          <stop offset="1" stopColor="#1b4f9b" />
         </linearGradient>
         <linearGradient id="ppji-face" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#1c5fa8" />
-          <stop offset="1" stopColor="#143f78" />
+          <stop offset="0" stopColor="#14457f" />
+          <stop offset="1" stopColor="#0b1f3a" />
         </linearGradient>
       </defs>
 
@@ -49,8 +49,8 @@ export default function PpjiLogo({
       {/* Sapuan gelombang */}
       <path
         d="M70 150 C 110 172, 210 172, 252 138 C 214 158, 112 158, 70 150 Z"
-        fill="#5aa9e0"
-        opacity="0.85"
+        fill="#e0a53b"
+        opacity="0.9"
       />
 
       {/* Teks PPJI */}
@@ -70,7 +70,7 @@ export default function PpjiLogo({
       {/* Tagline */}
       {!hideTagline && (
         <g
-          fill="#1c5fa8"
+          fill="#0b1f3a"
           fontFamily="Arial, Helvetica, sans-serif"
           textAnchor="middle"
         >
