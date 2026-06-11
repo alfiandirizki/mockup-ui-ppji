@@ -16,7 +16,7 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "PPJI Mobile",
-  description: "Mockup aplikasi anggota PPJI — gaya Livin' by Mandiri × OVO",
+  description: "Mockup aplikasi anggota PPJI ",
 };
 
 export const viewport: Viewport = {
